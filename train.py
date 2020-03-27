@@ -14,6 +14,7 @@ from data import get_training_set, get_test_set
 
 # Training settings
 parser = argparse.ArgumentParser(description='pix2pix-pytorch-implementation')
+parser.add_argument("--dataset_root", default="dataset/")
 parser.add_argument('--dataset', required=True, help='facades')
 parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
 parser.add_argument('--batch_size', type=int, default=1, help='training batch size')
@@ -48,7 +49,7 @@ if opt.cuda:
     torch.cuda.manual_seed(opt.seed)
 
 print('===> Loading datasets')
-root_path = "dataset/"
+root_path = opt.dataset_root
 train_set = get_training_set(root_path + opt.dataset, opt.direction)
 test_set = get_test_set(root_path + opt.dataset, opt.direction)
 training_data_loader = DataLoader(dataset=train_set, num_workers=opt.threads, batch_size=opt.batch_size, shuffle=True)
