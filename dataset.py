@@ -18,32 +18,28 @@ class DatasetFromFolder(data.Dataset):
         self.b_path = join(image_dir, "b")
         self.image_filenames = [x for x in listdir(self.a_path) if is_image_file(x)]
 
-        transform_list = [transforms.ToTensor(),
-                          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 
-        self.transform = transforms.Compose(transform_list)
+        self.transformA = transforms.Compose([
+                            transforms.Resize((int(256*1.1), int(256*1.1))),
+                            transforms.RandomRotation(3),
+                            transforms.RandomCrop(256),
+                            transforms.ColorJitter(hue=.05, saturation=.05),
+                            transforms.RandomHorizontalFlip(),
+                            transforms.ToTensor(),
+                            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
+        self.transformB = transforms.Compose([
+                            transforms.Resize((256, 256)),
+                            transforms.RandomHorizontalFlip(),
+                            transforms.ToTensor(),
+                            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     def __getitem__(self, index):
         a = Image.open(join(self.a_path, self.image_filenames[index])).convert('RGB')
         b = Image.open(join(self.b_path, self.image_filenames[index])).convert('RGB')
-        a = a.resize((286, 286), Image.BICUBIC)
-        b = b.resize((286, 286), Image.BICUBIC)
-        a = transforms.ToTensor()(a)
-        b = transforms.ToTensor()(b)
-        w_offset = random.randint(0, max(0, 286 - 256 - 1))
-        h_offset = random.randint(0, max(0, 286 - 256 - 1))
-    
-        a = a[:, h_offset:h_offset + 256, w_offset:w_offset + 256]
-        b = b[:, h_offset:h_offset + 256, w_offset:w_offset + 256]
-    
-        a = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(a)
-        b = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(b)
 
-        if random.random() < 0.5:
-            idx = [i for i in range(a.size(2) - 1, -1, -1)]
-            idx = torch.LongTensor(idx)
-            a = a.index_select(2, idx)
-            b = b.index_select(2, idx)
+        a = self.transformA(a)
+        b = self.transformB(b)
 
         if self.direction == "a2b":
             return a, b
