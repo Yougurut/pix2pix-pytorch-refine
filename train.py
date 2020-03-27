@@ -15,6 +15,7 @@ from data import get_training_set, get_test_set
 # Training settings
 parser = argparse.ArgumentParser(description='pix2pix-pytorch-implementation')
 parser.add_argument('--dataset', required=True, help='facades')
+parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
 parser.add_argument('--batch_size', type=int, default=1, help='training batch size')
 parser.add_argument('--test_batch_size', type=int, default=1, help='testing batch size')
 parser.add_argument('--direction', type=str, default='b2a', help='a2b or b2a')
@@ -137,13 +138,13 @@ for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + 1):
     print("===> Avg. PSNR: {:.4f} dB".format(avg_psnr / len(testing_data_loader)))
 
     #checkpoint
-    if epoch % 50 == 0:
-        if not os.path.exists("checkpoint"):
-            os.mkdir("checkpoint")
-        if not os.path.exists(os.path.join("checkpoint", opt.dataset)):
-            os.mkdir(os.path.join("checkpoint", opt.dataset))
-        net_g_model_out_path = "checkpoint/{}/netG_model_epoch_{}.pth".format(opt.dataset, epoch)
-        net_d_model_out_path = "checkpoint/{}/netD_model_epoch_{}.pth".format(opt.dataset, epoch)
+    if epoch % 10 == 0:
+        if not os.path.exists(opt.checkpoints_dir):
+            os.mkdir(opt.checkpoints_dir)
+        if not os.path.exists(os.path.join(opt.checkpoints_dir, opt.dataset)):
+            os.mkdir(os.path.join(opt.checkpoints_dir, opt.dataset))
+        net_g_model_out_path = "{}/{}/netG_model_epoch_{}.pth".format(opt.checkpoints_dir, opt.dataset, epoch)
+        net_d_model_out_path = "{}/{}/netD_model_epoch_{}.pth".format(opt.checkpoints_dir, opt.dataset, epoch)
         torch.save(net_g, net_g_model_out_path)
         torch.save(net_d, net_d_model_out_path)
-        print("Checkpoint saved to {}".format("checkpoint" + opt.dataset))
+        print("Checkpoint saved to {}".format(opt.checkpoints_dir + opt.dataset))
