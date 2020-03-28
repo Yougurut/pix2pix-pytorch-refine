@@ -61,6 +61,12 @@ print('===> Building models')
 net_g = define_G(opt.input_nc, opt.output_nc, opt.ngf, 'batch', False, 'normal', 0.02, gpu_id=device)
 net_d = define_D(opt.input_nc + opt.output_nc, opt.ndf, 'basic', gpu_id=device)
 
+if opt.epoch_count > 1:
+    net_g_model_load_path = "{}/{}/netG_model_epoch_{}.pth".format(opt.checkpoints_dir, opt.dataset, opt.epoch_count )
+    net_d_model_load_path = "{}/{}/netD_model_epoch_{}.pth".format(opt.checkpoints_dir, opt.dataset, opt.epoch_count )
+    net_g.load_state_dict(torch.load(net_g_model_load_path))
+    net_d.load_state_dict(torch.load(net_d_model_load_path))
+
 criterionGAN = GANLoss().to(device)
 criterionL1 = nn.L1Loss().to(device)
 criterionMSE = nn.MSELoss().to(device)
@@ -139,7 +145,7 @@ for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + 1):
     print("===> Avg. PSNR: {:.4f} dB".format(avg_psnr / len(testing_data_loader)))
 
     #checkpoint
-    if epoch % 10 == 0:
+    if epoch % 5 == 0:
         if not os.path.exists(opt.checkpoints_dir):
             os.mkdir(opt.checkpoints_dir)
         if not os.path.exists(os.path.join(opt.checkpoints_dir, opt.dataset)):
