@@ -64,8 +64,8 @@ net_d = define_D(opt.input_nc + opt.output_nc, opt.ndf, 'basic', gpu_id=device)
 if opt.epoch_count > 1:
     net_g_model_load_path = "{}/{}/netG_model_epoch_{}.pth".format(opt.checkpoints_dir, opt.dataset, opt.epoch_count )
     net_d_model_load_path = "{}/{}/netD_model_epoch_{}.pth".format(opt.checkpoints_dir, opt.dataset, opt.epoch_count )
-    net_g.load_state_dict(torch.load(net_g_model_load_path))
-    net_d.load_state_dict(torch.load(net_d_model_load_path))
+    net_g = torch.load(net_g_model_load_path)
+    net_d = torch.load(net_d_model_load_path)
 
 criterionGAN = GANLoss().to(device)
 criterionL1 = nn.L1Loss().to(device)
